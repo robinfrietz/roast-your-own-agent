@@ -15,6 +15,14 @@ const written = readFileSync(target, "utf8");
 if (written !== LINE) {
   throw new Error(`output mismatch: entry.txt differs from expected line`);
 }
+// Byte-level verification: re-read as raw bytes and compare against the
+// UTF-8 encoding of the intended line, so no encoding drift can slip past
+// the string comparison above.
+const writtenBytes = readFileSync(target);
+const expectedBytes = Buffer.from(LINE, "utf8");
+if (!writtenBytes.equals(expectedBytes)) {
+  throw new Error(`output mismatch: entry.txt bytes differ from expected line`);
+}
 if (written.length < 1 || written.length > 200) {
   throw new Error(`output length ${written.length} outside 1-200 chars`);
 }
